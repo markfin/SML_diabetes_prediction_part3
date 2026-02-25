@@ -1,0 +1,34 @@
+artifact_path: /content/SML_diabetes_prediction_part3/mlruns/0/models/m-e55c2cba3f41463da8921dc2ab0e00cc/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.12
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+    skops_trusted_types: null
+is_signature_from_type_hint: false
+mlflow_version: 3.10.0
+model_id: m-e55c2cba3f41463da8921dc2ab0e00cc
+model_size_bytes: 976
+model_uuid: m-e55c2cba3f41463da8921dc2ab0e00cc
+prompts: null
+run_id: a0cd3cd996f04f0e89fab8b649cd0536
+signature:
+  inputs: '[{"type": "long", "name": "Pregnancies", "required": true}, {"type": "double",
+    "name": "Glucose", "required": true}, {"type": "double", "name": "BloodPressure",
+    "required": true}, {"type": "double", "name": "SkinThickness", "required": true},
+    {"type": "double", "name": "Insulin", "required": true}, {"type": "double", "name":
+    "BMI", "required": true}, {"type": "double", "name": "DiabetesPedigreeFunction",
+    "required": true}, {"type": "long", "name": "Age", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-02-25 08:09:05.532476'
