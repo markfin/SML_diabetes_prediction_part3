@@ -1,70 +1,60 @@
 
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import mlflow
 import mlflow.sklearn
 
-# Define the path to the processed dataset (now at /content/)
-DATA_PATH = 'processed_diabetes.csv'
+# Enable MLflow autologging for scikit-learn
+mlflow.sklearn.autolog()
 
-def run_model_training():
-    print("Starting MLflow experiment...")
-
+# Start an MLflow run
+with mlflow.start_run():
     # Load the processed dataset
+    # Adjust path to access 'processed_diabetes.csv' from the parent directory
+    # assuming modelling.py is in a subfolder like 'Membangun_model'
     try:
-        df = pd.read_csv(DATA_PATH)
-        print("Dataset '{}' loaded successfully.".format(DATA_PATH))
+        df = pd.read_csv('../processed_diabetes.csv')
+        print("Dataset '../processed_diabetes.csv' loaded successfully.")
     except FileNotFoundError:
-        print("Error: '{}' not found. Please ensure the processed data is available.".format(DATA_PATH))
-        return
+        print("Error: 'processed_diabetes.csv' not found. Please ensure the file is in the root directory.")
+        exit()
 
     # Separate features (X) and target (y)
     X = df.drop('Outcome', axis=1)
     y = df['Outcome']
 
     # Split data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) # Corrected typo
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     print("Data split into training and testing sets.")
 
-    # Enable MLflow autologging for scikit-learn
-    mlflow.sklearn.autolog()
-    print("MLflow autologging enabled for scikit-learn.")
+    # Initialize and train a Logistic Regression model
+    model = LogisticRegression(max_iter=1000, random_state=42)
+    model.fit(X_train, y_train)
+    print("Logistic Regression model trained.")
 
-    with mlflow.start_run():
-        # Initialize and train a Logistic Regression model
-        model = LogisticRegression(random_state=42, solver='liblinear') # Using liblinear for small datasets
-        model.fit(X_train, y_train)
-        print("Logistic Regression model trained.")
+    # Make predictions
+    y_pred = model.predict(X_test)
 
-        # Make predictions
-        y_pred = model.predict(X_test)
+    # Evaluate the model
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
 
-        # Calculate evaluation metrics
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred)
-        recall = recall_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred)
+    print(f"
+Model Evaluation:
+")
+    print(f"Accuracy: {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall: {recall:.4f}")
+    print(f"F1-Score: {f1:.4f}")
 
-        # Print and log metrics (Corrected newline handling)
-        print("") # Add an empty print for newline
-        print("Model Evaluation Metrics:")
-        print("  Accuracy: {:.4f}".format(accuracy))
-        print("  Precision: {:.4f}".format(precision))
-        print("  Recall: {:.4f}".format(recall))
-        print("  F1-Score: {:.4f}".format(f1))
+    # Explicitly log the model artifact to a known subfolder
+    mlflow.sklearn.log_model(model, "logistic_regression_model")
+    print("Logistic Regression model explicitly logged as artifact 'logistic_regression_model'.")
 
-        mlflow.log_metrics({
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1_score": f1
-        })
-        print("Metrics logged to MLflow.")
+    print("MLflow autologging has captured model, parameters, and metrics.")
 
-        print("MLflow Run finished.")
-
-if __name__ == "__main__":
-    run_model_training()
+print("Modelling script finished.")
